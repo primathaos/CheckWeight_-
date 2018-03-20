@@ -5,6 +5,7 @@ using System.Data;
 
 using System.Data.SqlClient;
 using System.Collections;
+using System.IO;
 
 namespace TestInterop
 {
@@ -370,13 +371,35 @@ namespace TestInterop
         public static bool SaveResult(string strID, string strTaskCode, string strMac, string strHostLable, string strWeight)
         {
             string strCmd = string.Format(@"INSERT INTO ODC_WEIGHT (TASKSCODE,MAC,HOSTLABLE,WEIGHT) 
-     VALUES ('{0}','{1}','{2}','{3}');", strTaskCode, strMac, strHostLable, strWeight);
+     VALUES ('{0}','{1}','{2}','{3}');", strTaskCode, strMac, strHostLable, strWeight);           
 
             try
             {
                 if (con.State == System.Data.ConnectionState.Open)
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
+
+                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToShortDateString().ToString());
+                    string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
+
+                    if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
+                    {
+                        Directory.CreateDirectory(folderPath);//创建该文件夹 
+                    }
+
+                    if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
+                    {
+                        StreamWriter log = File.CreateText(Logpath);//创建文档
+                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.Close();
+                    }
+                    else
+                    {
+                        StreamWriter log = new StreamWriter(Logpath, true);
+                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.Close();
+                    }
+
                     int n = cmd.ExecuteNonQuery();
                     if (n != 1)
                     {
@@ -406,6 +429,28 @@ namespace TestInterop
                 if (con.State == System.Data.ConnectionState.Open)
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
+
+                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToShortDateString().ToString());
+                    string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
+
+                    if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
+                    {
+                        Directory.CreateDirectory(folderPath);//创建该文件夹 
+                    }
+
+                    if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
+                    {
+                        StreamWriter log = File.CreateText(Logpath);//创建文档
+                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.Close();
+                    }
+                    else
+                    {
+                        StreamWriter log = new StreamWriter(Logpath, true);
+                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.Close();
+                    }
+
                     int n = cmd.ExecuteNonQuery();
                     if (n != 1)
                     {

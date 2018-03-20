@@ -33,7 +33,6 @@ namespace CheckWeight
         int j = 0;
 
         string dWeight_math = "";
-        string Weight_check = "";
 
         SerialPort m_Port;
 
@@ -141,7 +140,8 @@ namespace CheckWeight
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            m_strPort = cmbPort.Text;
+            m_strPort = cmbPort.Text;            
+
             if (!m_strPort.Contains("COM"))
             {
                 MessageBox.Show("未选择端口");
