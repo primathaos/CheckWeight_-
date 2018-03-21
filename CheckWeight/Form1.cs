@@ -140,7 +140,7 @@ namespace CheckWeight
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            m_strPort = cmbPort.Text;            
+            m_strPort = cmbPort.Text;
 
             if (!m_strPort.Contains("COM"))
             {

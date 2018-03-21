@@ -379,7 +379,7 @@ namespace TestInterop
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
 
-                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToShortDateString().ToString());
+                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToString("yyyy-MM-dd"));
                     string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
 
                     if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
@@ -390,13 +390,13 @@ namespace TestInterop
                     if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
                     {
                         StreamWriter log = File.CreateText(Logpath);//创建文档
-                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
                         log.Close();
                     }
                     else
                     {
                         StreamWriter log = new StreamWriter(Logpath, true);
-                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
                         log.Close();
                     }
 
@@ -430,7 +430,7 @@ namespace TestInterop
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
 
-                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToShortDateString().ToString());
+                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToString("yyyy-MM-dd"));
                     string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
 
                     if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
@@ -441,13 +441,13 @@ namespace TestInterop
                     if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
                     {
                         StreamWriter log = File.CreateText(Logpath);//创建文档
-                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
                         log.Close();
                     }
                     else
                     {
                         StreamWriter log = new StreamWriter(Logpath, true);
-                        log.WriteLine(System.DateTime.Now.ToLongTimeString() + ": " + strCmd);
+                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
                         log.Close();
                     }
 
