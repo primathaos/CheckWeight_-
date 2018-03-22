@@ -70,27 +70,30 @@ namespace CheckWeight
                     if ((txtSN.Text.Length == 32) || (txtSN.Text.Length == 12) || (txtSN.Text.Length == 24) || (txtSN.Text.Length == 39))
                     {
                         m_strSN = txtSN.Text;
-                        if (DoOperation_math(out double dWeight, out double fweight_c) && i < 10)
+                        if (DoOperation_math(out double dWeight, out double fweight_c, out int fweight_num))
                         {
-                            dWeight_math = dWeight_math + "," + dWeight.ToString("f4");
-                            i++;
-                            ShowResult("产品重量为" + dWeight.ToString("f4") + " 计算上下限还需要" + (10 - i) + "pcs,请继续扫描下一产品", eState.eTesting);
-                        }
+                            if (i < fweight_num)
+                            {
+                                dWeight_math = dWeight_math + "," + dWeight.ToString("f4");
+                                i++;
+                                ShowResult("产品重量为" + dWeight.ToString("f4") + " 计算上下限还需要" + (fweight_num - i) + "pcs,请继续扫描下一产品", eState.eTesting);
+                            }
 
-                        if (i >= 10)
-                        {
-                            string[] dWeight_Temp = dWeight_math.Split(',');
-                            double dWeight_Min = GetMin(dWeight_Temp, i);
-                            double dWeight_Max = GetMax(dWeight_Temp, i);
-                            double dWeight_Mean = GetMean(dWeight_Temp, i);
-                            double dWeight_DownUp = (dWeight_Max - dWeight_Min) * fweight_c;
-                            txtDown.Text = (dWeight_Mean - dWeight_DownUp).ToString("f4");
-                            txtUp.Text = (dWeight_Mean + dWeight_DownUp).ToString("f4");
-                            txtUp.Enabled = false;
-                            txtDown.Enabled = false;
-                            MathUpDown.Text = "重新计算上下限";
-                            ShowResult("重量上下限已计算完成，开始正常称重测试", eState.ePass);
-                        }
+                            if (i >= fweight_num)
+                            {
+                                string[] dWeight_Temp = dWeight_math.Split(',');
+                                double dWeight_Min = GetMin(dWeight_Temp, i);
+                                double dWeight_Max = GetMax(dWeight_Temp, i);
+                                double dWeight_Mean = GetMean(dWeight_Temp, i);
+                                double dWeight_DownUp = (dWeight_Max - dWeight_Min) * fweight_c;
+                                txtDown.Text = (dWeight_Mean - dWeight_DownUp).ToString("f4");
+                                txtUp.Text = (dWeight_Mean + dWeight_DownUp).ToString("f4");
+                                txtUp.Enabled = false;
+                                txtDown.Enabled = false;
+                                MathUpDown.Text = "重新计算上下限";
+                                ShowResult("重量上下限已计算完成，开始正常称重测试", eState.ePass);
+                            }
+                        }                        
 
                         txtSN.SelectAll();
                         txtSN.Focus();
@@ -280,6 +283,7 @@ namespace CheckWeight
                 {
                     break;
                 }
+
                 bRet = true;
             } while (false);
 
@@ -294,7 +298,7 @@ namespace CheckWeight
         }
 
         //计算上下限用
-        bool DoOperation_math(out double dWeight,out double fweight_c)
+        bool DoOperation_math(out double dWeight,out double fweight_c,out int fweight_num)
         {
             ShowResult("读取中", eState.eTesting);
             bool bRet = false;
@@ -303,6 +307,7 @@ namespace CheckWeight
             //int nNum = 0;
             dWeight = 0;
             fweight_c = 0;
+            fweight_num = 0;
             Thread.Sleep(1000);
 
             do
@@ -313,7 +318,7 @@ namespace CheckWeight
                     break;
                 }
 
-                if (!SubmitResult_math(dValue,out fweight_c))
+                if (!SubmitResult_math(dValue,out fweight_c, out fweight_num))
                 {
                     break;
                 }
@@ -388,7 +393,6 @@ namespace CheckWeight
                     ShowResult("上传测试记录失败", eState.eFail);
                     return false;
                 }
-
                 return true;
             }
             catch (System.Exception ex)
@@ -398,10 +402,11 @@ namespace CheckWeight
             }
         }
 
-        bool SubmitResult_math(double dValue,out double fweight_c)
+        bool SubmitResult_math(double dValue, out double fweight_c, out int fweight_num)
         {
             string strTaskCode, strMac;
             fweight_c = 0;
+            fweight_num = 0;
             string remark = "称重计算产品";
             try
             {
@@ -420,6 +425,12 @@ namespace CheckWeight
                 if (!DatabaseFunc.GetWeight_coefficient(strTaskCode, out fweight_c))
                 {
                     ShowResult("获取称重系数失败", eState.eFail);
+                    return false;
+                }
+
+                if (!DatabaseFunc.GetWeight_num(strTaskCode, out fweight_num))
+                {
+                    ShowResult("获取称重个数失败", eState.eFail);
                     return false;
                 }
                 return true;

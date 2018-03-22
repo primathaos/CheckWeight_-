@@ -378,37 +378,18 @@ namespace TestInterop
                 if (con.State == System.Data.ConnectionState.Open)
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
-
-                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToString("yyyy-MM-dd"));
-                    string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
-
-                    if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
-                    {
-                        Directory.CreateDirectory(folderPath);//创建该文件夹 
-                    }
-
-                    if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
-                    {
-                        StreamWriter log = File.CreateText(Logpath);//创建文档
-                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
-                        log.Close();
-                    }
-                    else
-                    {
-                        StreamWriter log = new StreamWriter(Logpath, true);
-                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
-                        log.Close();
-                    }
-
+                    SetLog(strTaskCode, strMac, strCmd);
                     int n = cmd.ExecuteNonQuery();
                     if (n != 1)
                     {
+                        SetLog(strTaskCode, strMac, "服务器响应错误");
                         return false;
                     }
                 }
                 else
                 {
-                    return true;
+                    SetLog(strTaskCode, strMac, "与服务器连接中断");
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -429,37 +410,18 @@ namespace TestInterop
                 if (con.State == System.Data.ConnectionState.Open)
                 {
                     SqlCommand cmd = new SqlCommand(strCmd, con);
-
-                    string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToString("yyyy-MM-dd"));
-                    string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
-
-                    if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
-                    {
-                        Directory.CreateDirectory(folderPath);//创建该文件夹 
-                    }
-
-                    if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
-                    {
-                        StreamWriter log = File.CreateText(Logpath);//创建文档
-                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
-                        log.Close();
-                    }
-                    else
-                    {
-                        StreamWriter log = new StreamWriter(Logpath, true);
-                        log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strCmd);
-                        log.Close();
-                    }
-
+                    SetLog(strTaskCode, strMac, strCmd);
                     int n = cmd.ExecuteNonQuery();
                     if (n != 1)
                     {
+                        SetLog(strTaskCode, strMac, "服务器响应错误");
                         return false;
                     }
                 }
                 else
                 {
-                    return true;
+                    SetLog(strTaskCode, strMac, "与服务器连接中断");
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -725,6 +687,58 @@ namespace TestInterop
             catch
             {
                 return false;
+            }
+        }
+
+        //取上下限计算个数
+        public static bool GetWeight_num(string strTasksID, out int fweight_num)
+        {
+            fweight_num = 0;
+            try
+            {
+                string strCmd = @"select fweight_num from odc_dypowertype where ftype in 
+                                 (select product_name from odc_tasks where taskscode = '" + strTasksID + "')";
+
+                DataSet ds = new DataSet();
+                SqlDataAdapter da = new SqlDataAdapter(strCmd, con);
+                da.Fill(ds);
+                fweight_num = int.Parse(ds.Tables[0].Rows[0]["fweight_num"].ToString());
+                if (fweight_num != 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void SetLog(string strTaskCode, string strMac, string strMessage)
+        {
+            string folderPath = string.Format(@"\称重日志\{0}\{1}", strTaskCode, DateTime.Now.ToString("yyyy-MM-dd"));
+            string Logpath = string.Format(folderPath + @"\{0}.txt", strMac);
+
+            if (!Directory.Exists(folderPath))//如果不存在就创建file文件夹 
+            {
+                Directory.CreateDirectory(folderPath);//创建该文件夹 
+            }
+
+            if (!File.Exists(Logpath))//如果不存在就创建TxT文档 
+            {
+                StreamWriter log = File.CreateText(Logpath);//创建文档
+                log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strMessage);
+                log.Close();
+            }
+            else
+            {
+                StreamWriter log = new StreamWriter(Logpath, true);
+                log.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:ffff") + ": " + strMessage);
+                log.Close();
             }
         }
     }
