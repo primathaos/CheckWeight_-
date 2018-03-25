@@ -31,6 +31,7 @@ namespace CheckWeight
 
         int i = 0;
         int j = 0;
+        int strWeight_num = 10;
 
         string dWeight_math = "";
 
@@ -72,11 +73,30 @@ namespace CheckWeight
                         m_strSN = txtSN.Text;
                         if (DoOperation_math(out double dWeight, out double fweight_c, out int fweight_num))
                         {
+                            strWeight_num = fweight_num;
                             if (i < fweight_num)
                             {
-                                dWeight_math = dWeight_math + "," + dWeight.ToString("f4");
-                                i++;
-                                ShowResult("产品重量为" + dWeight.ToString("f4") + " 计算上下限还需要" + (fweight_num - i) + "pcs,请继续扫描下一产品", eState.eTesting);
+                                if (i != 0)
+                                {
+                                    string[] dWeight_Temp_Check = dWeight_math.Split(',');
+                                    double dWeight_Mean_check = GetMean(dWeight_Temp_Check, i);
+                                    if (Math.Abs(dWeight - dWeight_Mean_check) > 30)
+                                    {
+                                        ShowResult("此产品与计算序列平均值重量差距大于30g,请重新称重", eState.eFail);
+                                    }
+                                    else
+                                    {
+                                        dWeight_math = dWeight_math + "," + dWeight.ToString("f4");
+                                        i++;
+                                        ShowResult("产品重量为" + dWeight.ToString("f4") + " 计算上下限还需要" + (fweight_num - i) + "pcs,请继续扫描下一产品", eState.eTesting);
+                                    }
+                                }
+                                else if (i == 0)
+                                {
+                                    dWeight_math = dWeight_math + "," + dWeight.ToString("f4");
+                                    i++;
+                                    ShowResult("产品重量为" + dWeight.ToString("f4") + " 计算上下限还需要" + (fweight_num - i) + "pcs,请继续扫描下一产品", eState.eTesting);
+                                }
                             }
 
                             if (i >= fweight_num)
@@ -619,7 +639,7 @@ namespace CheckWeight
                 if (frmlogin.ShowDialog() == DialogResult.OK)
                 {
                     bRet = true;
-                    ShowResult("扫描称重10pcs产品开始计算上下限", eState.eTesting);
+                    ShowResult("扫描"+ strWeight_num.ToString() +"产品开始计算上下限", eState.eTesting);
                     i = 0;
                     j = 0;
                     dWeight_math = "";
