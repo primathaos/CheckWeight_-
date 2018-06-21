@@ -168,6 +168,7 @@ namespace CheckWeight
             if (!m_strPort.Contains("COM"))
             {
                 MessageBox.Show("未选择端口");
+                ShowResult("此产品与计算序列平均值重量差距大于30g,请重新称重", eState.eFail);
                 return;
             }
 
@@ -281,7 +282,8 @@ namespace CheckWeight
             bool bRet = false;
             //double dTotal = 0;
             double dValue = 0;
-            //int nNum = 0;
+            string dValue_math = "";
+            int nNum = 0;
             Thread.Sleep(1000);
 
             do 
@@ -302,6 +304,35 @@ namespace CheckWeight
                 if (!SubmitResult(dValue))
                 {
                     break;
+                }
+
+                if (nNum < 2)
+                {
+                    if (nNum != 0)
+                    {
+                        string[] dValue_Temp_Check = dValue_math.Split(',');
+                        double dValue_Mean_check = GetMean(dValue_Temp_Check, nNum);
+                        if (dValue.ToString("f4") == dValue_Mean_check.ToString("f4"))
+                        {
+                            ShowResult("扫描产品与上一产品重量相同,请重新称重", eState.eFail);
+                            break;
+                        }
+                        else
+                        {
+                            dValue_math = dValue_math + "," + dValue.ToString("f4");
+                            nNum++;
+                        }
+                    }
+                    else if (i == 0)
+                    {
+                        dValue_math = dValue_math + "," + dValue.ToString("f4");
+                        nNum++;
+                    }
+                }
+                else
+                {
+                    nNum = 0;
+                    dValue_math = "";
                 }
 
                 bRet = true;
@@ -590,7 +621,7 @@ namespace CheckWeight
             try
             {
                 lTotal.Clear();
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < 3; ++i)
                 {
                     int nCount = m_Port.BytesToRead;
                     byte[] bytearray = new byte[nCount];
