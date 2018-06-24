@@ -31,9 +31,11 @@ namespace CheckWeight
 
         int i = 0;
         int j = 0;
+        int nNum = 0;
         int strWeight_num = 10;
 
         string dWeight_math = "";
+        string dValue_math = "";
 
         SerialPort m_Port;
 
@@ -168,7 +170,6 @@ namespace CheckWeight
             if (!m_strPort.Contains("COM"))
             {
                 MessageBox.Show("未选择端口");
-                ShowResult("此产品与计算序列平均值重量差距大于30g,请重新称重", eState.eFail);
                 return;
             }
 
@@ -191,6 +192,7 @@ namespace CheckWeight
             RefreshUI(m_bInitOK);
             txtDown.Enabled = false;
             txtUp.Enabled = false;
+
         }
 
         void InitFunc()
@@ -282,8 +284,6 @@ namespace CheckWeight
             bool bRet = false;
             //double dTotal = 0;
             double dValue = 0;
-            string dValue_math = "";
-            int nNum = 0;
             Thread.Sleep(1000);
 
             do 
@@ -301,39 +301,28 @@ namespace CheckWeight
                     break;
                 }
 
-                if (!SubmitResult(dValue))
+                if (nNum != 0)
                 {
-                    break;
-                }
-
-                if (nNum < 2)
-                {
-                    if (nNum != 0)
+                    if (dValue.ToString("f4") == dValue_math)
                     {
-                        string[] dValue_Temp_Check = dValue_math.Split(',');
-                        double dValue_Mean_check = GetMean(dValue_Temp_Check, nNum);
-                        if (dValue.ToString("f4") == dValue_Mean_check.ToString("f4"))
-                        {
-                            ShowResult("扫描产品与上一产品重量相同,请重新称重", eState.eFail);
-                            break;
-                        }
-                        else
-                        {
-                            dValue_math = dValue_math + "," + dValue.ToString("f4");
-                            nNum++;
-                        }
+                        ShowResult("扫描产品与上一产品重量相同,请重新称重", eState.eFail);
+                        break;
                     }
-                    else if (i == 0)
+                    else
                     {
-                        dValue_math = dValue_math + "," + dValue.ToString("f4");
-                        nNum++;
+                        dValue_math = dValue.ToString("f4");
                     }
                 }
                 else
                 {
-                    nNum = 0;
-                    dValue_math = "";
+                    dValue_math = dValue.ToString("f4");
+                    nNum++;
                 }
+
+                if (!SubmitResult(dValue))
+                {
+                    break;
+                }               
 
                 bRet = true;
             } while (false);
