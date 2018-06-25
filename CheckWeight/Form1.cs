@@ -303,19 +303,19 @@ namespace CheckWeight
 
                 if (nNum != 0)
                 {
-                    if (dValue.ToString("f4") == dValue_math)
+                    if (dValue.ToString("f3") == dValue_math)
                     {
                         ShowResult("扫描产品与上一产品重量相同,请重新称重", eState.eFail);
                         break;
                     }
                     else
                     {
-                        dValue_math = dValue.ToString("f4");
+                        dValue_math = dValue.ToString("f3");
                     }
                 }
                 else
                 {
-                    dValue_math = dValue.ToString("f4");
+                    dValue_math = dValue.ToString("f3");
                     nNum++;
                 }
 
